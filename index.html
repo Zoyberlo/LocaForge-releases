@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LocaForge — українізатор ігор</title>
+<meta name="description" content="LocaForge знаходить текст гри, допомагає його перекласти й ставить переклад у гру так, що його завжди можна прибрати. Для команд українських перекладачів.">
+<meta name="color-scheme" content="dark light">
+<!-- The project page (roadmap F4). scripts/site.mjs fills in the version, the date and the games from
+     docs/verified-games.json and writes dist/site/; it is published to Zoyberlo/LocaForge-releases (GitHub Pages) only
+     with the author's OK. Fonts are served from here (OFL, fonts/): a visitor's browser asks no one else. -->
+<style>
+@font-face { font-family: "Onest"; font-weight: 400; font-display: swap; src: url(fonts/onest-cyrillic-400-normal.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Onest"; font-weight: 400; font-display: swap; src: url(fonts/onest-latin-400-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+2212, U+2215; }
+@font-face { font-family: "Onest"; font-weight: 600; font-display: swap; src: url(fonts/onest-cyrillic-600-normal.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Onest"; font-weight: 600; font-display: swap; src: url(fonts/onest-latin-600-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+2212, U+2215; }
+@font-face { font-family: "Unbounded"; font-weight: 700; font-display: swap; src: url(fonts/unbounded-cyrillic-700-normal.woff2) format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Unbounded"; font-weight: 700; font-display: swap; src: url(fonts/unbounded-latin-700-normal.woff2) format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+2212, U+2215; }
+
+/* LocaForge's own tokens (gui/styles.css): dark first, light when the system asks for it */
+:root {
+  --bg: #111216; --panel: #16181d; --card: #1a1d22; --field: #1e2127;
+  --line: #2b2f37; --line-soft: #23262d;
+  --text: #eceef2; --text2: #aeb4bf; --text3: #878e9a;
+  --brand: #ffc94d; --brand-ink: #ffc94d; --on-brand: #1a1405; --brand-bg: rgba(255, 201, 77, .12); --brand-line: rgba(255, 201, 77, .34);
+  --ok: #4fd08a; --ok-bg: rgba(79, 208, 138, .12); --ok-line: rgba(79, 208, 138, .32);
+  --info: #6aa8ff; --info-bg: rgba(106, 168, 255, .12); --info-line: rgba(106, 168, 255, .32);
+  --warn: #ff9a52; --warn-bg: rgba(255, 154, 82, .12);
+  --font-ui: "Onest", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Unbounded", "Onest", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f4f6; --panel: #ffffff; --card: #ffffff; --field: #f7f8fa;
+    --line: #d9dde4; --line-soft: #e6e9ee;
+    --text: #15171c; --text2: #4b5260; --text3: #6a717e;
+    --brand-ink: #8a5a00; --brand-bg: rgba(255, 201, 77, .24); --brand-line: rgba(176, 124, 0, .45);
+    --ok: #18874d; --ok-bg: rgba(24, 135, 77, .10); --ok-line: rgba(24, 135, 77, .35);
+    --info: #2c66c9; --info-bg: rgba(44, 102, 201, .10); --info-line: rgba(44, 102, 201, .35);
+    --warn: #b65413; --warn-bg: rgba(182, 84, 19, .10);
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font-ui); -webkit-font-smoothing: antialiased; }
+a { color: var(--brand-ink); text-underline-offset: 3px; }
+a:focus-visible, .btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; border-radius: 6px; }
+.page { max-width: 1080px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 0 64px; display: flex; flex-direction: column; gap: 64px; }
+h1, h2 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; letter-spacing: -.01em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(22px, 2.6vw, 28px); }
+h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; }
+p { margin: 0; }
+.muted { color: var(--text2); }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+section { display: flex; flex-direction: column; gap: 20px; }
+.head { display: flex; flex-direction: column; gap: 8px; max-width: 760px; }
+.head p { color: var(--text2); }
+
+header.hero { padding-block: clamp(48px, 9vw, 96px) 0; display: flex; flex-direction: column; gap: 22px; }
+.mark { display: flex; align-items: center; gap: 12px; }
+.logo { width: 40px; height: 40px; border-radius: 11px; background: var(--brand); color: var(--on-brand); display: grid; place-items: center; font: 700 19px var(--font-display); }
+.mark span:last-child { font: 700 18px var(--font-display); }
+.hero h1 { font-size: clamp(32px, 6vw, 56px); max-width: 15ch; }
+.lead { max-width: 760px; font-size: clamp(17px, 2vw, 20px); line-height: 1.55; color: var(--text2); }
+.lead b { color: var(--text); font-weight: 600; }
+.row { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); font-weight: 600; text-decoration: none; }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.pill { display: inline-flex; align-items: center; gap: 8px; min-height: 28px; padding: 3px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--brand-line); background: var(--brand-bg); color: var(--brand-ink); }
+.pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.small { font-size: 14px; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: s; }
+.steps li { counter-increment: s; display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 20px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.steps li::before { content: counter(s); font: 700 15px var(--font-display); color: var(--brand-ink); }
+.steps p { color: var(--text2); font-size: 15px; }
+
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.card { display: flex; flex-direction: column; gap: 8px; padding: 20px 22px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line-soft); min-width: 0; }
+.card p, .card li { color: var(--text2); font-size: 15px; }
+.card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+.tblwrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { padding: 11px 14px; text-align: left; vertical-align: top; border-top: 1px solid var(--line-soft); }
+thead th { border-top: 0; background: var(--panel); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); white-space: nowrap; }
+td.game { font-weight: 600; color: var(--text); min-width: 11em; }
+td.game .eng { display: block; font-weight: 400; font-size: 13px; color: var(--text3); }
+td.num { text-align: right; white-space: nowrap; }
+td.note { color: var(--text2); font-size: 14px; min-width: 18em; }
+.st { display: inline-flex; align-items: center; min-height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; border: 1px solid var(--line); color: var(--text3); }
+.st.ok { color: var(--ok); border-color: var(--ok-line); background: var(--ok-bg); }
+.st.wait { color: var(--brand-ink); border-color: var(--brand-line); background: var(--brand-bg); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--text3); font-size: 14px; align-items: center; }
+
+.rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rules li { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.rules p { color: var(--text2); font-size: 15px; }
+.not { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; color: var(--text2); }
+.not b { color: var(--text); font-weight: 600; }
+footer { border-top: 1px solid var(--line-soft); padding-top: 22px; color: var(--text3); font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+@media (max-width: 900px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .steps, .grid, .rules { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div class="mark"><span class="logo" aria-hidden="true">L</span><span>LocaForge</span></div>
+    <h1>Українізатор ігор для команд перекладачів</h1>
+    <p class="lead"><b>LocaForge</b> знаходить текст гри, допомагає його перекласти й ставить переклад у гру — так, що його завжди можна прибрати. Готовий переклад збирається в пакет для гравців: їм сама програма не потрібна.</p>
+    <div class="row">
+      <span class="pill"><span class="dot" aria-hidden="true"></span>Закрита бета · версія 0.9.0</span>
+      <span class="muted small">Windows 10 / 11 · Linux — частково</span>
+    </div>
+    <div class="row">
+      <a class="btn primary" href="https://github.com/Zoyberlo/LocaForge-releases/releases">Збірки</a>
+      <a class="btn" href="https://github.com/Zoyberlo/LocaForge-releases/issues/new">Повідомити про помилку</a>
+    </div>
+    <p class="muted small">Збірок поки немає: програму доводить до бети сам автор. Коли вийде перша, вона з’явиться в «Збірках», а встановлена програма далі оновлюватиметься сама, одним кліком.</p>
+  </header>
+
+  <section aria-labelledby="how-h">
+    <div class="head"><span class="label">Як це працює</span><h2 id="how-h">Від гри до перекладу в ній</h2></div>
+    <ol class="steps">
+      <li><h3>Оберіть гру</h3><p>LocaForge бачить ігри зі Steam і додані вручну, визначає рушій і мови й каже, чи можна гру перекласти та чи є вже українська.</p></li>
+      <li><h3>Знайдіть текст</h3><p>Програма сама витягує рядки з файлів гри: оригінал не змінюється. Зашифровані ігри Unreal — ключ шукає сама.</p></li>
+      <li><h3>Перекладіть</h3><p>Редактор із контекстом із гри, глосарієм, правописом, перевірками й пам’яттю перекладів; машинний переклад і ШІ-перевірка — на ваш вибір.</p></li>
+      <li><h3>Встановіть</h3><p>Одна кнопка ставить переклад у гру, друга — повертає гру як була. Пакет для гравців має власну програму встановлення.</p></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="what-h">
+    <div class="head"><span class="label">Можливості</span><h2 id="what-h">Що вміє</h2></div>
+    <div class="grid">
+      <div class="card"><h3>Рушії</h3><p>Unity (Mono й IL2CPP), Unreal 4 / 5 (зокрема зашифровані) і Godot. Інші ігри — через плагін-опис: кілька рядків JSON без коду.</p></div>
+      <div class="card"><h3>Контекст із гри</h3><p>Хто говорить і до кого, ліміти довжини, примітки розробника, блоки тексту: інтерфейс, діалоги, предмети, завдання.</p></div>
+      <div class="card"><h3>Якість</h3><p>Правопис української (Hunspell, dict_uk), перевірки плейсхолдерів і тегів, однакових рядків, глосарію; псевдопереклад у самій грі.</p></div>
+      <div class="card"><h3>Машинний переклад</h3><p>Google без ключа; Gemini, DeepL, Claude і GPT — з вашим ключем; локальні моделі через Ollama. Глосарій і контекст ідуть разом із рядком.</p></div>
+      <div class="card"><h3>Командна робота</h3><p>Спільна тека в хмарі без сервера й акаунтів: розподіл рядків, етапи вичитки, коментарі з @, історія кожного рядка.</p></div>
+      <div class="card"><h3>Обмін і пакет</h3><p>CSV, XLSX, XLIFF, PO — туди й назад без втрати ключів. Пакет для гравців з інсталятором і окремий архів для LBK Launcher.</p></div>
+    </div>
+  </section>
+
+  <section id="games" aria-labelledby="games-h">
+    <div class="head">
+      <span class="label">Перевірені ігри</span>
+      <h2 id="games-h">На чому перевірено</h2>
+      <p>Кожна позначка означає саме те, що написано в стовпці. «Встановлення» — переклад поставлено в справжню гру, прочитано назад і прибрано, а файли гри порівняно з оригіналом. «У грі» — переклад на власні очі бачив автор; поки ці ігри чекають цього погляду. Список від 10 жовтня 2026 р.</p>
+    </div>
+    <h3>Повний цикл · 9</h3>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th scope="col">Гра</th><th scope="col" class="num">Рядків</th><th scope="col">Встановлення</th><th scope="col">Пакет</th><th scope="col">У грі</th><th scope="col">Примітка</th></tr></thead>
+        <tbody>
+          <tr><td class="game">Haste<span class="eng">Unity 6 · Mono</span></td><td class="num">7 008</td><td><span class="st ok">✓</span></td><td><span class="st ok">1,4 МБ</span></td><td><span class="st wait">чекає</span></td><td class="note">BepInEx і XUnity.AutoTranslator, резервний шрифт Arial для ї, є, ґ; у гру додано 55 файлів, жоден файл гри не змінено.</td></tr>
+          <tr><td class="game">Chained Echoes<span class="eng">Unity 2020 · IL2CPP</span></td><td class="num">18 506</td><td><span class="st ok">✓</span></td><td><span class="st ok">36 МБ</span></td><td><span class="st wait">чекає</span></td><td class="note">Рядки з бази діалогів гри (Dialogue System) замість 8 000 сирого сканування; BepInEx 6 для IL2CPP.</td></tr>
+          <tr><td class="game">Dispatch<span class="eng">Unreal 5 · шифрування</span></td><td class="num">12 400</td><td><span class="st ok">✓</span></td><td><span class="st ok">660 КБ</span></td><td><span class="st wait">чекає</span></td><td class="note">Ключ AES програма знайшла в exe; переклад замість турецької.</td></tr>
+          <tr><td class="game">VOIN<span class="eng">Unreal 5.6</span></td><td class="num">1 303</td><td><span class="st ok">✓</span></td><td><span class="st ok">78 КБ</span></td><td><span class="st wait">чекає</span></td><td class="note">Наш _P.pak із порожньою парою IoStore замість польської; офіційну українську гри не зачеплено.</td></tr>
+          <tr><td class="game">Until Then<span class="eng">Godot 4.1</span></td><td class="num">676</td><td><span class="st ok">✓</span></td><td><span class="st ok">36 КБ</span></td><td><span class="st wait">чекає</span></td><td class="note">Рядки інтерфейсу замість філіппінської; діалоги в ink-скриптах ще не витягуються. Файл .pck на 3,5 ГБ після видалення — побайтово як був.</td></tr>
+          <tr><td class="game">Sword of the Necromancer<span class="eng">GameMaker · плагін-опис</span></td><td class="num">1 696</td><td><span class="st ok">✓</span></td><td><span class="st ok">✓</span></td><td><span class="st">—</span></td><td class="note">Плагін без коду: 22 файли «КЛЮЧ=значення» на мову. Програма встановлення пакета перевірена на копії гри: встановлення, оновлення, видалення — побайтово.</td></tr>
+          <tr><td class="game">Morbid: The Seven Acolytes<span class="eng">GameMaker · плагін-опис</span></td><td class="num">995</td><td><span class="st ok">✓</span></td><td><span class="st">—</span></td><td><span class="st">—</span></td><td class="note">Плагін без коду: один JSON з усіма мовами. Зараз переклад у грі не стоїть; усі українські літери мають лише шрифти Spectral і Honoka Antique-Maru.</td></tr>
+          <tr><td class="game">PEAK<span class="eng">Unity · Mono</span></td><td class="num">679</td><td><span class="st ok">✓</span></td><td><span class="st">—</span></td><td><span class="st">—</span></td><td class="note">Перевірено псевдоперекладом: після «Відновити оригінал» усі 270 файлів теки такі, як були.</td></tr>
+          <tr><td class="game">Windblown<span class="eng">Unity 6 · IL2CPP</span></td><td class="num">6 654</td><td><span class="st ok">✓</span></td><td><span class="st">—</span></td><td><span class="st">—</span></td><td class="note">Пробне встановлення 5 рядків (липень): прочитано назад, прибрано начисто. Тодішній шрифт виявився без кирилиці.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend"><span><span class="st ok">✓</span> перевірено</span><span><span class="st wait">чекає</span> чекає погляду автора в грі</span><span><span class="st">—</span> ще не робили</span></div>
+    <h3>Текст знайдено · 25</h3>
+    <p class="muted small">Програма прочитала текст цих ігор; встановлення в них ще не перевіряли.</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th scope="col">Гра</th><th scope="col" class="num">Рядків</th><th scope="col">Звідки текст</th><th scope="col">Примітка</th></tr></thead>
+        <tbody>
+          <tr><td class="game">The Leviathan's Fantasy<span class="eng">Unreal</span></td><td class="num">31 421</td><td class="note">.locres</td><td class="note"></td></tr>
+          <tr><td class="game">CODE VEIN II<span class="eng">Unreal 5</span></td><td class="num">22 908</td><td class="note">.locres, рядки приховані грою</td><td class="note">Читається з 10 жовтня: 22 861 рядок із літерами. Встановлення ще не перевіряли.</td></tr>
+          <tr><td class="game">Deep Rock Galactic<span class="eng">Unreal</span></td><td class="num">21 106</td><td class="note">.locres</td><td class="note"></td></tr>
+          <tr><td class="game">Lords of the Fallen<span class="eng">Unreal 5</span></td><td class="num">13 185</td><td class="note">.locres у .pak</td><td class="note"></td></tr>
+          <tr><td class="game">Dungeons of Hinterberg<span class="eng">Unity</span></td><td class="num">12 915</td><td class="note">Yarn Spinner і текст об’єктів</td><td class="note"></td></tr>
+          <tr><td class="game">A Space for the Unbound<span class="eng">Unity · Mono</span></td><td class="num">10 146</td><td class="note">I2 Localization</td><td class="note">Ще трохи рядків із Fungus.</td></tr>
+          <tr><td class="game">Sea of Stars<span class="eng">Unity</span></td><td class="num">9 911</td><td class="note">текст об’єктів гри</td><td class="note"></td></tr>
+          <tr><td class="game">V Rising<span class="eng">Unity</span></td><td class="num">8 369</td><td class="note">JSON і CSV у StreamingAssets</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">Blue Prince<span class="eng">Unity</span></td><td class="num">8 000</td><td class="note">сире сканування</td><td class="note">Таблиць локалізації в гри немає — блоки тексту тут лише здогадка.</td></tr>
+          <tr><td class="game">Nine Sols<span class="eng">Unity</span></td><td class="num">6 816</td><td class="note">I2 Localization у data.unity3d</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">While the Iron's Hot<span class="eng">Unity</span></td><td class="num">6 787</td><td class="note">Dialogue System</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">Echoes of Aincrad (демо)<span class="eng">Unreal · шифрування</span></td><td class="num">6 466</td><td class="note">.locres; ключ AES з exe</td><td class="note"></td></tr>
+          <tr><td class="game">Valheim<span class="eng">Unity</span></td><td class="num">4 266</td><td class="note">CSV у TextAsset</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">SANABI<span class="eng">Unity</span></td><td class="num">3 865</td><td class="note">таблиці діалогів і інтерфейсу</td><td class="note"></td></tr>
+          <tr><td class="game">Cuphead<span class="eng">Unity</span></td><td class="num">3 860</td><td class="note">сире сканування й інтерфейс</td><td class="note"></td></tr>
+          <tr><td class="game">Moonlighter<span class="eng">Unity</span></td><td class="num">3 397</td><td class="note">I2 Localization</td><td class="note"></td></tr>
+          <tr><td class="game">Far Far West<span class="eng">Unreal 5.6</span></td><td class="num">3 047</td><td class="note">.locres (pak v12)</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">Morbid Metal<span class="eng">Unity</span></td><td class="num">2 916</td><td class="note">таблиці гри</td><td class="note"></td></tr>
+          <tr><td class="game">Abyssus<span class="eng">Unreal · Oodle</span></td><td class="num">2 792</td><td class="note">.locres (Oodle)</td><td class="note">Встановлення перевірено мітками, не перекладом. Гра вже має українську.</td></tr>
+          <tr><td class="game">Stray<span class="eng">Unreal · Oodle</span></td><td class="num">1 957</td><td class="note">.locres (Oodle)</td><td class="note"></td></tr>
+          <tr><td class="game">Thymesia<span class="eng">Unreal</span></td><td class="num">1 585</td><td class="note">.locres</td><td class="note"></td></tr>
+          <tr><td class="game">Erra: Exordium<span class="eng">Unity</span></td><td class="num">860</td><td class="note">колонки мов у даних гри</td><td class="note"></td></tr>
+          <tr><td class="game">Eldest Souls<span class="eng">Unity · Mono</span></td><td class="num">806</td><td class="note">I2 Localization та інтерфейс</td><td class="note"></td></tr>
+          <tr><td class="game">Planet of Lana<span class="eng">Unity 2020 · IL2CPP</span></td><td class="num">555</td><td class="note">Unity Localization</td><td class="note">Гра вже має українську.</td></tr>
+          <tr><td class="game">GTFO<span class="eng">Unity</span></td><td class="num">496</td><td class="note">сире сканування</td><td class="note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="rules-h">
+    <div class="head"><span class="label">Принципи</span><h2 id="rules-h">Чого LocaForge не робить</h2></div>
+    <ul class="rules">
+      <li><h3>Не працює з російською</h3><p>Не перекладає з неї й на неї і не ставить переклад на її місце в грі. Переклад — лише з мови оригіналу.</p></li>
+      <li><h3>Не змінює гру назавжди</h3><p>Усе, що програма поставила, прибирає «Відновити оригінал»: файли гри стають такими, як були.</p></li>
+      <li><h3>Нічого не надсилає сама</h3><p>Машинний переклад іде лише до вибраного вами сервісу. Звіт про помилку — один файл, який ви надсилаєте самі; ключів у ньому немає.</p></li>
+      <li><h3>Ключі лишаються у вас</h3><p>Ключі Gemini, DeepL, Claude і GPT зберігаються лише на вашому комп’ютері й ніколи не потрапляють у звіти чи пакети.</p></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="not-h">
+    <div class="head"><span class="label">Поки не підтримується</span><h2 id="not-h">Де програма скаже «ні»</h2></div>
+    <ul class="not">
+      <li><b>Borderlands 2, Alice: Madness Returns</b> (Unreal Engine 3) — текст у файлах .int і пакетах .upk; плагін із кодом для них — у планах</li>
+      <li><b>Hi-Fi RUSH</b> (Unreal · шифрування) — ключ є лише в пам’яті запущеної гри</li>
+      <li><b>Dead Island 2, Titan Quest II</b> (Unreal · IoStore) — текст у ресурсах StringTable без .locres (не перевірялося з липня)</li>
+      <li><b>Where Winds Meet</b> (NetEase Messiah) — невідомий формат пакетів .mpk</li>
+      <li><b>Slay the Spire 2</b> (Godot 4.5) — текст вбудовано в сцени, файлів перекладу немає</li>
+      <li><b>Solo Leveling: ARISE</b> (Unity) — текст завантажується під час гри</li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>LocaForge 0.9.0 · сторінку оновлено 10 жовтня 2026 р.</span>
+    <span>Код програми — у закритому репозиторії; тут — <a href="https://github.com/Zoyberlo/LocaForge-releases/releases">збірки</a> і <a href="https://github.com/Zoyberlo/LocaForge-releases/issues">звернення</a>. Шрифти Onest і Unbounded — SIL Open Font License (<a href="fonts/OFL-Onest.txt">Onest</a>, <a href="fonts/OFL-Unbounded.txt">Unbounded</a>).</span>
+  </footer>
+</div>
+</body>
+</html>
